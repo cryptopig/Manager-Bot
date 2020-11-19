@@ -64,4 +64,4 @@ async def name(ctx):
     print(member_name)
 
 
-client.run('NzY5MzA2NDA0NzIwMjE0MDI4.X5NGaw.N_CFDtw-HKOJ2THBEhHWkAij9ko')
+client.run('TOKEN HERE')
