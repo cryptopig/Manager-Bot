@@ -13,7 +13,7 @@ client = commands.Bot(command_prefix='.')
 @client.event
 async def on_ready():
     await client.change_presence(status=discord.Status.online,
-                                 activity=discord.Game('For help, use .help :)'))
+      activity=discord.Game('For help, use .help :)'))
     print("The manager is ready to go.")
 
 
@@ -47,7 +47,17 @@ async def invite(ctx):
         'Here is the invite link: https://discord.com/api/oauth2/authorize?client_id=769306404720214028&permissions=0'
         '&scope=bot')
 
-#####################################################################################################################
+#@client.command()
+#async def featuredservers(ctx, )
+
+@client.command(pass_context=True)
+async def nickname(ctx, member: discord.Member, nick):
+  if ctx.message.author.guild_permissions.administrator:
+    await member.edit(nick=nick)
+    await ctx.send(f'Nickname was changed for {member.mention} '+". New nickname is ",nick)
+  else:
+    await ctx.send(f'You don\'t have the permission for that,' + {member.mention} + "!")
+  
 
 
 @client.command()
