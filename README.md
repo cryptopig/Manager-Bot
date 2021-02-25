@@ -12,4 +12,4 @@ The Manager Bot project is currently paused for the time being, as the creator i
 
 3. Do the steps shown on screen
 
-The bot will then join your server that you added it to. If you have any questions, make sure to ask @cryptopig on GitHub, or contact some pig#5492 on Discord. 
+The bot will then join your server that you added it to. If you have any questions, make sure to ask @cryptopig on GitHub.
