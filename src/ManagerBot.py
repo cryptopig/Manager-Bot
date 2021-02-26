@@ -10,7 +10,7 @@ bot = commands.Bot(command_prefix='.')
 
 @bot.event
 async def on_ready():
-    await client.change_presence(status=discord.Status.online,
+    await bot.change_presence(status=discord.Status.online,
       activity=discord.Game('For help, use .help :)'))
     print("The manager is ready to go.")
 
@@ -32,13 +32,31 @@ async def on_member_remove(member):
     f.close()
 
 @bot.event
-async def on_command_error(ctx, error):
+async def command_not_found_error(ctx, error):
   if isinstance(error, commands.CommandNotFound):
     await ctx.send("There is no such command!")
 
-#@nickname.error
+@bot.event
+async def disabled_command_error(ctx, error):
+  if isinstance(error, commands.DisabledCommand):
+    await ctx.send("This command has been disabled!")
+
+@bot.event
+async def bad_argument_error(ctx, error):
+  if isinstance(error,commands.BadArgument):
+    await ctx.send("Please put the right arguments in the command!")
+
+@nickname.error
 async def nickname_error(ctx, error):
-  await ctx.send("Error in the nickname command! The  #format for the nickname command is| .nickname {@user} #{nickname}|.")
+  await ctx.send("Error in the nickname command! The  format for the nickname command is| .nickname {@user} {nickname}|.")
+
+class blacklistError(Exception):
+  pass
+
+#blacklist certain people
+#@bot.event
+#async def blacklist_error(ctx):
+#  if 
 
 ####################################################################################################################
 
@@ -54,25 +72,32 @@ async def invite(ctx):
         'Here is the invite link: https://discord.com/api/oauth2/authorize?client_id=769306404720214028&permissions=0'
         '&scope=bot')
 
-#@client.command()
-#async def featuredservers(ctx, )
 
 @bot.command(pass_context=True)
 async def nickname(ctx, member: discord.Member, nick):
   if ctx.message.author.guild_permissions.administrator:
     await member.edit(nick=nick)
     await ctx.send(f'Nickname was changed for {member.mention}.')
+  else:
+    await ctx.send("You dont' have the permission to do this!")
 
-  
+@bot.command(pass_context=True)
+async def blacklist(ctx, member: discord.Member):
+  if ctx.message.author.guild_permissions.administrator:
+    role = get(member.server.roles, name="Manager Bot Blacklist")
+    await bot.add_roles(member, role)
+    await ctx.send(member + ' was blacklisted from using Manager Bot on this server.')  
+  else:
+    await ctx.send("You don't have the permission to do this!")
 
 
-@client.command()
+@bot.command()
 async def diceroll(ctx):
     faces = ['1', '2', '3', '4', '5', '6']
     await ctx.send(random.choice(faces))
 
 
-@client.command()
+@bot.command()
 async def name(ctx):
     await ctx.send("Say a name: ")
     time.sleep(0.1)
@@ -80,4 +105,4 @@ async def name(ctx):
     print(member_name)
 
 
-client.run('TOKEN HERE')
+bot.run('TOKEN HERE')
