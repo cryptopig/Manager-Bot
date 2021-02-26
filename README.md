@@ -7,8 +7,7 @@ The Manager Bot project has been resumed! @cryptopig is currently actively worki
 
 1. Make sure you have permissions to add the bot to the server you want to add it to.
 
-2. Go to the following link: https://discord.com/api/oauth2/authorize?client_id=769306404720214028&permissions=0'
-        '&scope=bot')
+2. Go to the following link: https://discord.com/api/oauth2/authorize?client_id=769306404720214028&permissions=0&scope=bot)
 
 3. Do the steps shown on screen
 
@@ -18,4 +17,4 @@ The bot will then join your server that you added it to. If you have any questio
 The prefix for commands is "."
 An example command is:
 .ping
-Type .help for a list of all the commands, and lastly, enjoy Manager Bot!
+Type .help for a list of all the commands. Lastly, enjoy Manager Bot!
