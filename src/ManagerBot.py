@@ -11,7 +11,7 @@ bot = commands.Bot(command_prefix='.')
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.online,
-      activity=discord.Game('For help, use .help :)'))
+      activity=discord.Game('Use .help for a list of commands :)'))
     print("The manager is ready to go.")
 
 
@@ -50,16 +50,7 @@ async def bad_argument_error(ctx, error):
 async def nickname_error(ctx, error):
   await ctx.send("Error in the nickname command! The  format for the nickname command is| .nickname {@user} {nickname}|.")
 
-class blacklistError(Exception):
-  pass
-
-#blacklist certain people
-#@bot.event
-#async def blacklist_error(ctx):
-#  if 
-
 ####################################################################################################################
-
 
 @bot.command()
 async def ping(ctx):
@@ -86,7 +77,7 @@ async def blacklist(ctx, member: discord.Member):
   if ctx.message.author.guild_permissions.administrator:
     role = get(member.server.roles, name="Manager Bot Blacklist")
     await bot.add_roles(member, role)
-    await ctx.send(member + ' was blacklisted from using Manager Bot on this server.')  
+    await ctx.send(member + ' was blacklisted from using Manager Bot on this server.')
   else:
     await ctx.send("You don't have the permission to do this!")
 
