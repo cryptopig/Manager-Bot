@@ -46,6 +46,11 @@ async def bad_argument_error(ctx, error):
   if isinstance(error,commands.BadArgument):
     await ctx.send("Please put the right arguments in the command!")
 
+@bot.event
+async def on_message(message):
+    if "Manager Bot" in message.content:
+        await ctx.send(";)")
+
 @nickname.error
 async def nickname_error(ctx, error):
   await ctx.send("Error in the nickname command! The  format for the nickname command is| .nickname {@user} {nickname}|.")
@@ -86,7 +91,6 @@ async def blacklist(ctx, member: discord.Member):
 async def diceroll(ctx):
     faces = ['1', '2', '3', '4', '5', '6']
     await ctx.send(random.choice(faces))
-
 
 @bot.command()
 async def name(ctx):
