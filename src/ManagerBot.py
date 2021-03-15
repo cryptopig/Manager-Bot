@@ -51,6 +51,12 @@ async def on_message(message):
     if "Manager Bot" in message.content:
         await ctx.send(";)")
 
+@bot.event
+async def blacklisterror(message, member: discord.Member):
+    if message.content.startswith(".") and "Manager Bot Blacklist" in member.roles:
+        await ctx.send("You are blacklisted and do not have permission to use this command!")
+        await message.delete(message)
+
 @nickname.error
 async def nickname_error(ctx, error):
   await ctx.send("Error in the nickname command! The  format for the nickname command is| .nickname {@user} {nickname}|.")
