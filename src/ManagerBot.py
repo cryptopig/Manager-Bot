@@ -46,29 +46,24 @@ async def bad_argument_error(ctx, error):
   if isinstance(error,commands.BadArgument):
     await ctx.send("Please put the right arguments in the command!")
 
-@bot.event
-async def on_message(message):
-    if "Manager Bot" in message.content:
-        await ctx.send(";)")
-
-@bot.event
-async def blacklisterror(message, member: discord.Member):
-    if message.content.startswith(".") and "Manager Bot Blacklist" in member.roles:
-        await ctx.send("You are blacklisted and do not have permission to use this command!")
-        await message.delete(message)
-
-@bot.event
-async def on_message(self, message, role = discord.utils.get(ctx.guild.roles, name="Manager Bot Blacklist")):
-    if message.author.bot:
-        return
-    if message[0]==command_prefix and role in ctx.author.roles:
-        await ctx.send("You are blacklisted from using the bot! ")
-        await author.message.delete(message)
+#@bot.event
+#async def on_message(message):
+    #if "Manager Bot" in message.content:
+    #    await ctx.send(";)")
 
 
-@nickname.error
-async def nickname_error(ctx, error):
-  await ctx.send("Error in the nickname command! The  format for the nickname command is| .nickname {@user} {nickname}|.")
+#@bot.event
+#async def on_message(ctx, self, message):
+    #role = discord.utils.get(ctx.guild.roles, name="Manager Bot Blacklist")
+    #if message.author.bot:
+    #    return
+    #if message[0]==command_prefix and role in ctx.author.roles:
+    #    await author.message.delete(message)
+
+
+#@nickname.error
+#async def nickname_error(ctx, error):
+#  await ctx.send("Error in the nickname command! The  format for the nickname command is| .nickname {@user} {nickname}|.")
 
 ####################################################################################################################
 
@@ -76,6 +71,13 @@ async def nickname_error(ctx, error):
 async def ping(ctx):
     await ctx.send(f'Pong!\nLatency: `{round(bot.latency * 1000)} ms`')
 
+#@bot.event
+#async def on_message(ctx, self, message):
+    #role = discord.utils.get(ctx.guild.roles, name="Manager Bot Blacklist")
+    #if message.author.bot:
+    #    return
+    #if message[0]==command_prefix and role in ctx.author.roles:
+    #    await author.message.delete(message)
 
 @bot.command()
 async def invite(ctx):
@@ -93,13 +95,20 @@ async def nickname(ctx, member: discord.Member, nick):
     await ctx.send("You dont' have the permission to do this!")
 
 @bot.command(pass_context=True)
-async def blacklist(ctx, member: discord.Member):
+async def blacklist(ctx, member: discord.Member, *, reason=""):
   if ctx.message.author.guild_permissions.administrator:
     role = get(member.server.roles, name="Manager Bot Blacklist")
     await bot.add_roles(member, role)
     await ctx.send(member + ' was blacklisted from using Manager Bot on this server.')
   else:
     await ctx.send("You don't have the permission to do this!")
+
+  if role == None:
+      await ctx.guild.create_role("Manager Bot Blacklist")
+
+@bot.command()
+async def mute(ctx, member: discord.Member, pass_context=True):
+    await member.edit(mute=True)
 
 
 @bot.command()
