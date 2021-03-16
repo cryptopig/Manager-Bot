@@ -57,6 +57,15 @@ async def blacklisterror(message, member: discord.Member):
         await ctx.send("You are blacklisted and do not have permission to use this command!")
         await message.delete(message)
 
+@bot.event
+async def on_message(self, message, role = discord.utils.get(ctx.guild.roles, name="Manager Bot Blacklist")):
+    if message.author.bot:
+        return
+    if message[0]==command_prefix and role in ctx.author.roles:
+        await ctx.send("You are blacklisted from using the bot! ")
+        await author.message.delete(message)
+
+
 @nickname.error
 async def nickname_error(ctx, error):
   await ctx.send("Error in the nickname command! The  format for the nickname command is| .nickname {@user} {nickname}|.")
@@ -99,11 +108,8 @@ async def diceroll(ctx):
     await ctx.send(random.choice(faces))
 
 @bot.command()
-async def name(ctx):
-    await ctx.send("Say a name: ")
-    time.sleep(0.1)
-    member_name = await bot.wait_for('message', check=check(context.author), timeout=30)
-    print(member_name)
+async def name(ctx, member: discord.Member):
+    await ctx.send(f"That member's name is {member.mention}")
 
 
 bot.run('TOKEN HERE')
