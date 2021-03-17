@@ -69,10 +69,13 @@ async def bad_argument_error(ctx, error):
 
 #ADMINISTRATION COMMANDS
 
-@bot.command()
-@commands.has_permissions(ban_members = True)
-async def ban(ctx, member : discord.Member, *, reason = None):
-    await member.ban(reason = reason)
+async def ban(ctx, member : discord.Member, reason=None):
+    if reason == None:
+        await ctx.send(f"Please provide a reason for the ban, {ctx.author.mention}!")
+    else:
+        banMessage = f"This member has been banned from {ctx.guild.name} for {reason}."
+        await member.send(banMessage)
+        await member.ban(reason=reason)
 
 @bot.command()
 @commands.has_permissions(administrator = True)
@@ -85,7 +88,7 @@ async def unban(ctx, *, member):
 
         if (user.name, user.discriminator) == (member_name, member_discriminator):
             await ctx.guild.unban(user)
-            await ctx.send(f'Unbanned {user.mention}')
+            await ctx.send(f'Unbanned {user}')
             return
 ####################################################################################################################
 @bot.command()
