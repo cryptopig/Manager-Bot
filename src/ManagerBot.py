@@ -110,6 +110,13 @@ async def blacklist(ctx, member: discord.Member, *, reason=""):
 async def mute(ctx, member: discord.Member, pass_context=True):
     await member.edit(mute=True)
 
+@bot.command()
+async def poll(ctx, question, option1=None, option2=None):
+    #embed=discord.Embed(title="New Poll!", description="React with the check mark for yes and the cross for no.", color=0xd9abab)
+    #await ctx.channel.purge(limit=1)
+    message = await ctx.send(f'```New poll: \n{question}```')
+    await message.add_reaction('✅')
+    await message.add_reaction('❌')
 
 @bot.command()
 async def diceroll(ctx):
