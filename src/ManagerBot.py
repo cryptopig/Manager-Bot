@@ -67,6 +67,27 @@ async def bad_argument_error(ctx, error):
 
 ####################################################################################################################
 
+#ADMINISTRATION COMMANDS
+
+@bot.command()
+@commands.has_permissions(ban_members = True)
+async def ban(ctx, member : discord.Member, *, reason = None):
+    await member.ban(reason = reason)
+
+@bot.command()
+@commands.has_permissions(administrator = True)
+async def unban(ctx, *, member):
+    banned_users = await ctx.guild.bans()
+    member_name, member_discriminator = member.split("#")
+
+    for ban_entry in banned_users:
+        user = ban_entry.user
+
+        if (user.name, user.discriminator) == (member_name, member_discriminator):
+            await ctx.guild.unban(user)
+            await ctx.send(f'Unbanned {user.mention}')
+            return
+####################################################################################################################
 @bot.command()
 async def ping(ctx):
     await ctx.send(f'Pong!\nLatency: `{round(bot.latency * 1000)} ms`')
@@ -112,9 +133,8 @@ async def mute(ctx, member: discord.Member, pass_context=True):
 
 @bot.command()
 async def poll(ctx, question, option1=None, option2=None):
-    #embed=discord.Embed(title="New Poll!", description="React with the check mark for yes and the cross for no.", color=0xd9abab)
-    #await ctx.channel.purge(limit=1)
-    message = await ctx.send(f'```New poll: \n{question}```')
+    await ctx.channel.purge(limit=1)
+    message = await ctx.send(f"```New poll: \n{question}```\n**✅ = Yes**\n**❎ = No**")
     await message.add_reaction('✅')
     await message.add_reaction('❌')
 
