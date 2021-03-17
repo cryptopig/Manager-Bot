@@ -46,21 +46,6 @@ async def bad_argument_error(ctx, error):
   if isinstance(error,commands.BadArgument):
     await ctx.send("Please put the right arguments in the command!")
 
-#@bot.event
-#async def on_message(message):
-    #if "Manager Bot" in message.content:
-    #    await ctx.send(";)")
-
-
-#@bot.event
-#async def on_message(ctx, self, message):
-    #role = discord.utils.get(ctx.guild.roles, name="Manager Bot Blacklist")
-    #if message.author.bot:
-    #    return
-    #if message[0]==command_prefix and role in ctx.author.roles:
-    #    await author.message.delete(message)
-
-
 #@nickname.error
 #async def nickname_error(ctx, error):
 #  await ctx.send("Error in the nickname command! The  format for the nickname command is| .nickname {@user} {nickname}|.")
@@ -95,13 +80,6 @@ async def unban(ctx, *, member):
 async def ping(ctx):
     await ctx.send(f'Pong!\nLatency: `{round(bot.latency * 1000)} ms`')
 
-#@bot.event
-#async def on_message(ctx, self, message):
-    #role = discord.utils.get(ctx.guild.roles, name="Manager Bot Blacklist")
-    #if message.author.bot:
-    #    return
-    #if message[0]==command_prefix and role in ctx.author.roles:
-    #    await author.message.delete(message)
 
 @bot.command()
 async def invite(ctx):
@@ -137,9 +115,28 @@ async def mute(ctx, member: discord.Member, pass_context=True):
 @bot.command()
 async def poll(ctx, question, option1=None, option2=None):
     await ctx.channel.purge(limit=1)
-    message = await ctx.send(f"```New poll: \n{question}```\n**✅ = Yes**\n**❎ = No**")
+    message = await ctx.send(f"```New poll: \n{question}```\n**✅ = Yes**\n**❌ = No**")
     await message.add_reaction('✅')
     await message.add_reaction('❌')
+
+@bot.command()
+async def restart(ctx):
+    if message.author.id == "725412711495762001":
+        await ctx.send("Restarting: ")
+        bot.logout()
+        bot.login()
+    else:
+        await ctx.send("You do not have permissions to restart the bot! ")
+
+
+@bot.command()
+async def shutdown(ctx):
+    if message.author.id == "725412711495762001":
+        await ctx.send("Shutting down the bot. ")
+        bot.logout()
+    else:
+        await ctx.send("You do not have the permission to shut down the bot! ")
+
 
 @bot.command()
 async def diceroll(ctx):
@@ -147,7 +144,7 @@ async def diceroll(ctx):
     await ctx.send(random.choice(faces))
 
 @bot.command()
-async def mentionmember(ctx, member: discord.Member):
+async def mentionmember(ctx, member: discord.Member, aliases=['mm']):
     await ctx.send(f"That member's name is {member.mention}")
 #    if member == None:
 #        await ctx.send("Please provide someone to mention! ")
