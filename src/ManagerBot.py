@@ -147,10 +147,10 @@ async def diceroll(ctx):
     await ctx.send(random.choice(faces))
 
 @bot.command()
-async def mention(ctx, member: discord.Member, aliases=['name']):
+async def mentionmember(ctx, member: discord.Member):
     await ctx.send(f"That member's name is {member.mention}")
-    if member == None:
-        await ctx.send("Please provide someone to mention! ")
+#    if member == None:
+#        await ctx.send("Please provide someone to mention! ")
 
 
 
