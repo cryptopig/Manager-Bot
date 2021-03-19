@@ -46,6 +46,7 @@ async def bad_argument_error(ctx, error):
   if isinstance(error,commands.BadArgument):
     await ctx.send("Please put the right arguments in the command!")
 
+
 #@nickname.error
 #async def nickname_error(ctx, error):
 #  await ctx.send("Error in the nickname command! The  format for the nickname command is| .nickname {@user} {nickname}|.")
@@ -53,7 +54,7 @@ async def bad_argument_error(ctx, error):
 ####################################################################################################################
 
 #ADMINISTRATION COMMANDS
-
+@bot.command()
 async def ban(ctx, member : discord.Member, reason=None):
     if reason == None:
         await ctx.send(f"Please provide a reason for the ban, {ctx.author.mention}!")
@@ -64,7 +65,7 @@ async def ban(ctx, member : discord.Member, reason=None):
 
 @bot.command()
 @commands.has_permissions(administrator = True)
-async def unban(ctx, *, member):
+async def unban(ctx, *, member, description="Unbans a user."):
     banned_users = await ctx.guild.bans()
     member_name, member_discriminator = member.split("#")
 
@@ -120,31 +121,12 @@ async def poll(ctx, question, option1=None, option2=None):
     await message.add_reaction('❌')
 
 @bot.command()
-async def restart(ctx):
-    if message.author.id == "725412711495762001":
-        await ctx.send("Restarting: ")
-        bot.logout()
-        bot.login()
-    else:
-        await ctx.send("You do not have permissions to restart the bot! ")
-
-
-@bot.command()
-async def shutdown(ctx):
-    if message.author.id == "725412711495762001":
-        await ctx.send("Shutting down the bot. ")
-        bot.logout()
-    else:
-        await ctx.send("You do not have the permission to shut down the bot! ")
-
-
-@bot.command()
 async def diceroll(ctx):
     faces = ['1', '2', '3', '4', '5', '6']
     await ctx.send(random.choice(faces))
 
 @bot.command()
-async def mentionmember(ctx, member: discord.Member, aliases=['mm']):
+async def mentionmember(ctx, member: discord.Member, aliases=['mm', 'mention']):
     await ctx.send(f"That member's name is {member.mention}")
 #    if member == None:
 #        await ctx.send("Please provide someone to mention! ")
