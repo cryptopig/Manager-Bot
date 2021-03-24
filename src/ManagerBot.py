@@ -3,7 +3,6 @@ import time
 
 import discord
 from discord.ext import commands
-from googlesearch import search
 # Set-up and running process
 from discord.ext.commands import bot, check, context
 
