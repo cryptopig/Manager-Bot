@@ -3,6 +3,7 @@ import time
 
 import discord
 from discord.ext import commands
+from googlesearch import search
 # Set-up and running process
 from discord.ext.commands import bot, check, context
 
@@ -59,23 +60,28 @@ async def ban(ctx, member : discord.Member, reason=None):
     if reason == None:
         await ctx.send(f"Please provide a reason for the ban, {ctx.author.mention}!")
     else:
-        banMessage = f"This member has been banned from {ctx.guild.name} for {reason}."
+        banMessage = f"This member has been banned from ths server for {reason}."
         await member.send(banMessage)
         await member.ban(reason=reason)
 
 @bot.command()
 @commands.has_permissions(administrator = True)
-async def unban(ctx, *, member, description="Unbans a user."):
+async def unban(ctx, *, member: discord.Member, description="Unbans a user."):
     banned_users = await ctx.guild.bans()
     member_name, member_discriminator = member.split("#")
 
     for ban_entry in banned_users:
-        user = ban_entry.user
+        user = ban_entry.member
 
         if (user.name, user.discriminator) == (member_name, member_discriminator):
-            await ctx.guild.unban(user)
-            await ctx.send(f'Unbanned {user}')
+            await ctx.guild.unban(member)
+            await ctx.send(f'Unbanned {member}')
             return
+
+@commands.is_owner() #make sure no one else uses it
+@bot.command()
+async def stop_bot(ctx):
+    exit()
 ####################################################################################################################
 @bot.command()
 async def ping(ctx):
@@ -88,14 +94,44 @@ async def invite(ctx):
         'Here is the invite link: https://discord.com/api/oauth2/authorize?client_id=769306404720214028&permissions=0'
         '&scope=bot')
 
+@bot.command()
+async def softban(ctx, member: discord.Member, reason=None, description = "Clears out all messages from a user by banning and unbanning them."):
+    if reason == None:
+        await ctx.send(f'Please provide a reason for the softban, {user.mention}!')
+        softbanMessage = f'This member has been banned from this server for {reason}.'
+    await member.send(softbanMessage)
+    banned_users = await ctx.guild.bans()
+    member_name, member_discriminator = member.split("#")
+
+    for ban_entry in banned_users:
+        user = ban_entry.member
+
+        if (user.name, user.discriminator) == (member_name, member_discriminator):
+            await ctx.guild.unban(member)
+            await ctx.send(f'Unbanned {member}')
+            return
+
+
+
+
 
 @bot.command(pass_context=True)
 async def nickname(ctx, member: discord.Member, nick):
-  if ctx.message.author.guild_permissions.administrator:
-    await member.edit(nick=nick)
-    await ctx.send(f'Nickname was changed for {member.mention}.')
-  else:
-    await ctx.send("You dont' have the permission to do this!")
+    if ctx.message.author.guild_permissions.administrator:
+        await member.edit(nick=nick)
+        await ctx.send(f'Nickname was changed for {member.mention}.')
+    else:
+        await ctx.send("You don't have the permission to do this!")
+
+@bot.command()
+async def googlesearch(ctx):
+    searchContent = ""
+    text = str(message.content).split(' ')
+    for i in range(2, len(text)):
+        searchContent = searchContent + text[i]
+    for searchitem in search(searchContent, tld='co.in', num=1, stop=1, pause=2):
+        await message.channel.send(searchitem)
+
 
 @bot.command(pass_context=True)
 async def blacklist(ctx, member: discord.Member, *, reason=""):
@@ -119,6 +155,8 @@ async def poll(ctx, question, option1=None, option2=None):
     message = await ctx.send(f"```New poll: \n{question}```\n**✅ = Yes**\n**❌ = No**")
     await message.add_reaction('✅')
     await message.add_reaction('❌')
+    await ctx.send("Done!")
+
 
 @bot.command()
 async def diceroll(ctx):
@@ -128,8 +166,9 @@ async def diceroll(ctx):
 @bot.command()
 async def mentionmember(ctx, member: discord.Member, aliases=['mm', 'mention']):
     await ctx.send(f"That member's name is {member.mention}")
-#    if member == None:
-#        await ctx.send("Please provide someone to mention! ")
+    if member == None:
+        await ctx.send("Please provide someone to mention! ")
+
 
 
 
