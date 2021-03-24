@@ -122,16 +122,6 @@ async def nickname(ctx, member: discord.Member, nick):
     else:
         await ctx.send("You don't have the permission to do this!")
 
-@bot.command()
-async def googlesearch(ctx):
-    searchContent = ""
-    text = str(message.content).split(' ')
-    for i in range(2, len(text)):
-        searchContent = searchContent + text[i]
-    for searchitem in search(searchContent, tld='co.in', num=1, stop=1, pause=2):
-        await message.channel.send(searchitem)
-
-
 @bot.command(pass_context=True)
 async def blacklist(ctx, member: discord.Member, *, reason=""):
   if ctx.message.author.guild_permissions.administrator:
