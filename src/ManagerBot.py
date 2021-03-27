@@ -138,6 +138,16 @@ async def poll(ctx, question, option1=None, option2=None):
     await message.add_reaction('❌')
     await ctx.send("Done!")
 
+@bot.command()
+async def clear(ctx, messageamount, limit=1):
+    await ctx.channel.purge(limit=int(messageamount)+1)
+    await ctx.send(f"{messageamount}messages cleared by {ctx.message.author.mention}.")
+
+@bot.command()
+async def reverse(ctx, message):
+    await ctx.send(str(message)[::-1])
+    if message == None:
+        await ctx.send("You must provide a string to reverse!")
 
 @bot.command()
 async def diceroll(ctx):
@@ -149,6 +159,7 @@ async def mentionmember(ctx, member: discord.Member, aliases=['mm', 'mention']):
     await ctx.send(f"That member's name is {member.mention}")
     if member == None:
         await ctx.send("Please provide someone to mention! ")
+
 
 
 bot.run('TOKEN HERE')
