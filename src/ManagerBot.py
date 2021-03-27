@@ -60,8 +60,9 @@ async def ban(ctx, member : discord.Member, reason=None):
         await ctx.send(f"Please provide a reason for the ban, {ctx.author.mention}!")
     else:
         banMessage = f"This member has been banned from ths server for {reason}."
+        await ctx.guild.ban(member)
         await member.send(banMessage)
-        await member.ban(reason=reason)
+
 
 @bot.command()
 @commands.has_permissions(administrator = True)
@@ -94,25 +95,10 @@ async def invite(ctx):
         '&scope=bot')
 
 @bot.command()
-async def softban(ctx, member: discord.Member, reason=None, description = "Clears out all messages from a user by banning and unbanning them."):
-    if reason == None:
-        await ctx.send(f'Please provide a reason for the softban, {user.mention}!')
-        softbanMessage = f'This member has been banned from this server for {reason}.'
-    await member.send(softbanMessage)
-    banned_users = await ctx.guild.bans()
-    member_name, member_discriminator = member.split("#")
-
-    for ban_entry in banned_users:
-        user = ban_entry.member
-
-        if (user.name, user.discriminator) == (member_name, member_discriminator):
-            await ctx.guild.unban(member)
-            await ctx.send(f'Unbanned {member}')
-            return
-
-
-
-
+async def softban(ctx, member: discord.Member, duration: int):
+    await ctx.guild.ban(member)
+    await time.sleep(duration)
+    await ctx.guild.unban(member)
 
 @bot.command(pass_context=True)
 async def nickname(ctx, member: discord.Member, nick):
@@ -133,6 +119,12 @@ async def blacklist(ctx, member: discord.Member, *, reason=""):
 
   if role == None:
       await ctx.guild.create_role("Manager Bot Blacklist")
+
+@bot.command()
+async def kill(ctx, member: discord.Member):
+    kmethod=['discombobulated','sliced', 'hit','slapped','exploded', 'decapitated', 'yeeted']
+    kweapon=['sword', 'bomb', 'plane', 'bowl of milk', 'bread', 'baguette', 'car', 'nuke', 'pig', 'monkey', 'rocket launcher']
+    await ctx.send(f"{member.mention} was {random.choice(kmethod)} by a {random.choice(kweapon)} sent by {ctx.message.author.mention}")
 
 @bot.command()
 async def mute(ctx, member: discord.Member, pass_context=True):
@@ -157,8 +149,6 @@ async def mentionmember(ctx, member: discord.Member, aliases=['mm', 'mention']):
     await ctx.send(f"That member's name is {member.mention}")
     if member == None:
         await ctx.send("Please provide someone to mention! ")
-
-
 
 
 bot.run('TOKEN HERE')
