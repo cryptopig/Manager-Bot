@@ -1,6 +1,6 @@
 import random
 import time
-
+import asyncio
 import discord
 from discord.ext import commands
 # Set-up and running process
@@ -66,7 +66,7 @@ async def ban(ctx, member : discord.Member, reason=None):
 
 @bot.command()
 @commands.has_permissions(administrator = True)
-async def unban(ctx, *, member: discord.Member, description="Unbans a user."):
+async def unban(ctx, *, member: discord.Member):
     banned_users = await ctx.guild.bans()
     member_name, member_discriminator = member.split("#")
 
@@ -82,6 +82,94 @@ async def unban(ctx, *, member: discord.Member, description="Unbans a user."):
 @bot.command()
 async def stop_bot(ctx):
     exit()
+
+@bot.command()
+async def clear(ctx, messageamount, limit=1):
+    await ctx.channel.purge(limit=int(messageamount)+1)
+    await ctx.send(f"{messageamount}messages cleared by {ctx.message.author.mention}.")
+
+@bot.command()
+async def mute(ctx, member: discord.Member, pass_context=True):
+    await member.edit(mute=True)
+
+@bot.command()
+async def warn(ctx, member: discord.Member, warnmsg):
+    user = bot.get_user(member.id)
+    await user.send(f"{ctx.message.author} has warned you for {warnmsg}.")
+####################################################################################################################
+
+# HELP SECTION/HELP RELATED COMMANDS
+@bot.remove_command("help")
+
+@bot.group(invoke_without_command=True)
+async def help(ctx):
+    em = discord.Embed(title='Help', description='Use .help <commandname> for help on specific commands!')
+    em.add_field(name='Moderation', value='ban, unban, softban, mute, clear')
+    em.add_field(name='Utilities', value='ping, invite, nickname, poll')
+    em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse')
+
+    await ctx.send(embed=em)
+'''
+@help.command()
+async def ban(ctx):
+    em = discord.Embed(title='Ban', description='This command bans a user from a server.')
+    em.add_field(name='Usage: .ban <@username> <reason>')
+
+@help.command()
+async def unban(ctx):
+    em = discord.Embed(title='Unban', description='This command unbans a user from a server.')
+    em.add_field(name='Usage: .unban <@username> <reason>')
+
+@help.command()
+async def softban(ctx):
+    em = discord.Embed(title='Softban', description='The softban command is currently being worked on, but will ban and immediately unban a user.')
+    em.add_field(name='Usage: COMMAND STILL BEING WORKED ON')
+
+@help.command()
+async def mute(ctx):
+    em = discord.Embed(title='Mute', description='The mute command mutes a user so they can\'t send a message in any channel.')
+    em.add_field(name='Usage: .mute <@username>')
+
+@help.command()
+async def clear(ctx):
+    em = discord.Embed(title='Clear', description='Clears a certain amount of messsages from the channel the command was sent in. ')
+    em.add_field(name='Usage: .clear <amount>')
+
+@help.command()
+async def ping(ctx):
+    em = discord.Embed(title='Ping', description='Sends the ping of the bot.')
+    em.add_field(name='Usage: .ping')
+
+@help.command()
+async def invite(ctx):
+    em = discord.Embed(title='Invite', description='Sends the invite link for this bot. The link can be used to invite the bot to other servers.')
+    em.add_field(name='Usage: .invite')
+
+@help.command()
+async def nickname(ctx):
+    em = discord.Embed(title='Nickname', description='Changes the nickname of a user.')
+    em.add_field(name='Usage: .nickname <@username> <newnickname>')
+
+@help.command()
+async def poll(ctx):
+    em = discord.Embed(title='Poll', description='Creates a poll in the channel the command was sent in.')
+    em.add_field(name='Usage: .poll <question> <option1> <option2>')
+
+@help.command()
+async def mentionmember(ctx):
+    em = discord.Embed(title='Mention (mentionmember)', description='This command bans a user from a server.')
+    em.add_field(name='Usage: .mentionmember <member>')
+
+@help.command()
+async def kill(ctx):
+    em = discord.Embed(title='Kill', description='Sends a kill message to targetted user >:)')
+    em.add_field(name='Usage: .kill <username>')
+
+@help.command()
+async def diceroll(ctx):
+    em = discord.Embed(title='Diceroll', description='Rolls a die.')
+    em.add_field(name='Usage: .diceroll')
+'''
 ####################################################################################################################
 @bot.command()
 async def ping(ctx):
@@ -122,13 +210,10 @@ async def blacklist(ctx, member: discord.Member, *, reason=""):
 
 @bot.command()
 async def kill(ctx, member: discord.Member):
-    kmethod=['discombobulated','sliced', 'hit','slapped','exploded', 'decapitated', 'yeeted']
+    kmethod=['discombobulated','sliced', 'hit','slapped','exploded', 'decapitated', 'yeeted', 'deleted']
     kweapon=['sword', 'bomb', 'plane', 'bowl of milk', 'bread', 'baguette', 'car', 'nuke', 'pig', 'monkey', 'rocket launcher']
     await ctx.send(f"{member.mention} was {random.choice(kmethod)} by a {random.choice(kweapon)} sent by {ctx.message.author.mention}")
 
-@bot.command()
-async def mute(ctx, member: discord.Member, pass_context=True):
-    await member.edit(mute=True)
 
 @bot.command()
 async def poll(ctx, question, option1=None, option2=None):
@@ -137,11 +222,6 @@ async def poll(ctx, question, option1=None, option2=None):
     await message.add_reaction('✅')
     await message.add_reaction('❌')
     await ctx.send("Done!")
-
-@bot.command()
-async def clear(ctx, messageamount, limit=1):
-    await ctx.channel.purge(limit=int(messageamount)+1)
-    await ctx.send(f"{messageamount}messages cleared by {ctx.message.author.mention}.")
 
 @bot.command()
 async def reverse(ctx, message):
