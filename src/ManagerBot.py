@@ -104,9 +104,9 @@ async def warn(ctx, member: discord.Member, warnmsg):
 @bot.group(invoke_without_command=True)
 async def help(ctx):
     em = discord.Embed(title='Help', description='Use .help <commandname> for help on specific commands!')
-    em.add_field(name='Moderation', value='ban, unban, softban, mute, clear')
+    em.add_field(name='Moderation', value='ban, unban, softban, mute, clear, warn')
     em.add_field(name='Utilities', value='ping, invite, nickname, poll')
-    em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse')
+    em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse, fortune')
 
     await ctx.send(embed=em)
 '''
@@ -239,6 +239,49 @@ async def mentionmember(ctx, member: discord.Member, aliases=['mm', 'mention']):
     await ctx.send(f"That member's name is {member.mention}")
     if member == None:
         await ctx.send("Please provide someone to mention! ")
+
+@bot.command()
+async def fortune(ctx):
+    day = ['In a while from now,', 'Later,', 'In some time,', 'Soon,', 'When the royal pig army takes over Scandanavia,']
+    amount = [' a lot', ' an abundance of', ' a little bit of', ' a hundred thousand', ' some']
+    item = [' of money', ' nukes', ' monkeys', ' pigs', ' cars', ' planes', ' explosions', ' strange noises']
+    await ctx.send(f"{random.choice(day)} you will recieve{random.choice(amount)}{random.choice(item)}.")
+
+@bot.command()
+async def hack(ctx, member: discord.Member):
+    waittime = [0.2, 0.3, 1, 0.5, 0.6, 0.4, 0.7, 0.01]
+    msg = await ctx.send(f"Hacking {member} now.")
+    await msg.edit(content="1%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="2%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="5%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="11%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="13%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="ERROR: RAN INTO 2FA, BRUTE FORCING NOW...")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="15%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="20%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="30%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="41%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="48%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="61%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="75%")
+    await asyncio.sleep(random.choice(waittime))
+    await msg.edit(content="STEALING AND REPOSTING MEMES NOW...")
+    await asyncio.sleep(random.choice(waittime))
+    await ctx.send("SUCCESSFULLY HACKED!")
+
+
 
 
 
