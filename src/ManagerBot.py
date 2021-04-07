@@ -171,6 +171,9 @@ async def diceroll(ctx):
     em.add_field(name='Usage: .diceroll')
 '''
 ####################################################################################################################
+# CURRENCY RELATED COMMANDS
+#users=
+####################################################################################################################
 @bot.command()
 async def ping(ctx):
     await ctx.send(f'Pong!\nLatency: `{round(bot.latency * 1000)} ms`')
@@ -281,8 +284,19 @@ async def hack(ctx, member: discord.Member):
     await asyncio.sleep(random.choice(waittime))
     await ctx.send("SUCCESSFULLY HACKED!")
 
+@bot.command()
+async def coinflip(ctx):
+    headstails=['heads', 'tails']
+    await ctx.send(f"The result is {random.choice(headstails)}!")
 
-
+@bot.command()
+async def guess(self, ctx):
+    numbers=random.randint(1,10)
+    await ctx.send('I have chosen a number from 1 to 10. Try to guess my number!')
+    try:
+        guess = await self.wait_for('message', check=is_correct, timeout=10.0)
+    except asyncio.TimeoutError:
+        ctx.send(f"10 seconds are over! The answer was {numbers}")
 
 
 bot.run('TOKEN HERE')
