@@ -3,8 +3,12 @@ import time
 import asyncio
 import discord
 from discord.ext import commands
+import os
+import json
+import pickle
 # Set-up and running process
 from discord.ext.commands import bot, check, context
+
 
 bot = commands.Bot(command_prefix='.')
 
@@ -114,66 +118,162 @@ async def help(ctx):
 async def ban(ctx):
     em = discord.Embed(title='Ban', description='This command bans a user from a server.')
     em.add_field(name='Usage: .ban <@username> <reason>')
+    await ctx.send(em)
 
 @help.command()
 async def unban(ctx):
     em = discord.Embed(title='Unban', description='This command unbans a user from a server.')
     em.add_field(name='Usage: .unban <@username> <reason>')
+    await ctx.send(em)
 
 @help.command()
 async def softban(ctx):
     em = discord.Embed(title='Softban', description='The softban command is currently being worked on, but will ban and immediately unban a user.')
     em.add_field(name='Usage: COMMAND STILL BEING WORKED ON')
+    await ctx.send(em)
 
 @help.command()
 async def mute(ctx):
     em = discord.Embed(title='Mute', description='The mute command mutes a user so they can\'t send a message in any channel.')
     em.add_field(name='Usage: .mute <@username>')
+    await ctx.send(em)
 
 @help.command()
 async def clear(ctx):
     em = discord.Embed(title='Clear', description='Clears a certain amount of messsages from the channel the command was sent in. ')
     em.add_field(name='Usage: .clear <amount>')
+    await ctx.send(em)
 
 @help.command()
 async def ping(ctx):
     em = discord.Embed(title='Ping', description='Sends the ping of the bot.')
     em.add_field(name='Usage: .ping')
+    await ctx.send(em)
 
 @help.command()
 async def invite(ctx):
     em = discord.Embed(title='Invite', description='Sends the invite link for this bot. The link can be used to invite the bot to other servers.')
     em.add_field(name='Usage: .invite')
+    await ctx.send(em)
 
 @help.command()
 async def nickname(ctx):
     em = discord.Embed(title='Nickname', description='Changes the nickname of a user.')
     em.add_field(name='Usage: .nickname <@username> <newnickname>')
+    await ctx.send(em)
 
 @help.command()
 async def poll(ctx):
     em = discord.Embed(title='Poll', description='Creates a poll in the channel the command was sent in.')
     em.add_field(name='Usage: .poll <question> <option1> <option2>')
+    await ctx.send(em)
 
 @help.command()
 async def mentionmember(ctx):
     em = discord.Embed(title='Mention (mentionmember)', description='This command bans a user from a server.')
     em.add_field(name='Usage: .mentionmember <member>')
+    await ctx.send(em)
 
 @help.command()
 async def kill(ctx):
     em = discord.Embed(title='Kill', description='Sends a kill message to targetted user >:)')
     em.add_field(name='Usage: .kill <username>')
+    await ctx.send(em)
 
 @help.command()
 async def diceroll(ctx):
     em = discord.Embed(title='Diceroll', description='Rolls a die.')
     em.add_field(name='Usage: .diceroll')
+    await ctx.send(em)
 '''
 ####################################################################################################################
 # CURRENCY RELATED COMMANDS
-#users=
+
+data_filename = "data.pickle"
+
+class Data:
+    def __init__(self, wallet, bank):
+        self.wallet = wallet
+        self.bank = bank
+
+
+#Commands
+@bot.command()
+async def beg(message):
+    member_data = load_member_data(message.author.id)
+    gain_amt = random.randint(0,201)
+    member_data.wallet += gain_amt
+    await message.channel.send(f"You earned {gain_amt} coins!")
+
+    save_member_data(message.author.id
+, member_data)
+
+@bot.command()
+async def bal(message):
+    member_data = load_member_data(message.author.id)
+
+    em = discord.Embed(title=f"Balance of {message.author}")
+    em.add_field(name="Wallet", value=str(member_data.wallet))
+    em.add_field(name="Bank", value=str(member_data.bank))
+
+    await message.channel.send(embed=em)
+
+@bot.command()
+async def deposit(ctx, deposit_amt):
+    member_data = load_member_data(ctx.message.author.id)
+
+    deposit_amt = int(deposit_amt)
+    print(deposit_amt)
+
+    if deposit_amt == None:
+        em = discord.Embed(title="Error!", description = "Please provide an amount to deposit!")
+        await ctx.send(embed = em)
+
+    elif deposit_amt <0:
+        em = discord.Embed(title="Error!", description = "Please provide a positive amount to deposit!")
+
+    elif deposit_amt > member_data.wallet:
+        em = discord.Embed(title="Error!", description = "The value you are depositing is more than what you have in your wallet!")
+
+    else:
+        member_data.bank += deposit_amt
+        member_data.wallet -= deposit_amt
+        save_member_data(ctx.message.author.id, member_data)
+        await ctx.send(f"Deposited {deposit_amt} coins!")
+
+
+
+
+
+
+
+#Functions
+def load_data():
+    if os.path.isfile(data_filename):
+        with open(data_filename, "rb") as file:
+            return pickle.load(file)
+    else:
+        return dict()
+
+def load_member_data(member_ID):
+    data = load_data()
+
+    if member_ID not in data:
+        return Data(0, 0)
+
+    return data[member_ID]
+
+def save_member_data(member_ID, member_data):
+    data = load_data()
+
+    data[member_ID] = member_data
+
+    with open(data_filename, "wb") as file:
+        pickle.dump(data, file)
+
 ####################################################################################################################
+
+
 @bot.command()
 async def ping(ctx):
     await ctx.send(f'Pong!\nLatency: `{round(bot.latency * 1000)} ms`')
@@ -182,7 +282,7 @@ async def ping(ctx):
 @bot.command()
 async def invite(ctx):
     await ctx.send(
-        'Here is the invite link: https://discord.com/api/oauth2/authorize?client_id=769306404720214028&permissions=0'
+        'Here is the invite link: https://discord.com/api/oauth2/authorize?_id=769306404720214028&permissions=0'
         '&scope=bot')
 
 @bot.command()
@@ -297,6 +397,7 @@ async def guess(self, ctx):
         guess = await self.wait_for('message', check=is_correct, timeout=10.0)
     except asyncio.TimeoutError:
         ctx.send(f"10 seconds are over! The answer was {numbers}")
+
 
 
 bot.run('TOKEN HERE')
