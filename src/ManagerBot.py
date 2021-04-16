@@ -294,10 +294,9 @@ async def gamble(ctx, gamble_amt):
         botchance = random.randint(0,7)
 
         if userchance > botchance:
-            credit_gain = userchance*(userchance-botchance)
-            member_data.wallet += credit_gain
+            member_data.wallet += gamble_amt
             save_member_data(ctx.message.author.id, member_data)
-            em = discord.Embed(title="You Won!", description = f"You gained {credit_gain} credits! ")
+            em = discord.Embed(title="You Won!", description = f"You gained {gamble_amt} credits! ")
             await ctx.send(embed = em)
 
         elif botchance > userchance:
@@ -310,6 +309,20 @@ async def gamble(ctx, gamble_amt):
             em = discord.Embed(title="Tie!", description = f"You didn't gain or lose anything. ")
             await ctx.send(embed = em)
 
+
+@bot.command()
+async def guess(self, ctx):
+    member_data = load_member_data(ctx.message.author.id)
+
+    number = random.randint(0,11)
+    await ctx.send("I have chosen a number from 1-10! Try to guess my number. You have three guesses!")
+    guess = await self.bot.wait_for('message')
+    guess = guess.content
+
+    if guess == number:
+        member_data.wallet += 50
+        save_member_data(ctx.message.author.id, member_data)
+        await ctx.send("You got it! You have recieved 50 credits!")
 
 #Functions
 def load_data():
@@ -453,14 +466,6 @@ async def coinflip(ctx):
     headstails=['heads', 'tails']
     await ctx.send(f"The result is {random.choice(headstails)}!")
 
-@bot.command()
-async def guess(self, ctx):
-    numbers=random.randint(1,10)
-    await ctx.send('I have chosen a number from 1 to 10. Try to guess my number!')
-    try:
-        guess = await self.wait_for('message', check=is_correct, timeout=10.0)
-    except asyncio.TimeoutError:
-        ctx.send(f"10 seconds are over! The answer was {numbers}")
 
 
 
