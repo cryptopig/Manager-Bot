@@ -107,10 +107,11 @@ async def warn(ctx, member: discord.Member, warnmsg):
 
 @bot.group(invoke_without_command=True)
 async def help(ctx):
-    em = discord.Embed(title='Help', description='Use .help <commandname> for help on specific commands!')
+    em = discord.Embed(title='Help', description='A list of commands!')
     em.add_field(name='Moderation', value='ban, unban, softban, mute, clear, warn')
     em.add_field(name='Utilities', value='ping, invite, nickname, poll')
-    em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse, fortune')
+    em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse, fortune, guess')
+    em.add_field(name='Currency', value='beg, bal, deposit, withdraw, gamble')
 
     await ctx.send(embed=em)
 '''
@@ -199,14 +200,15 @@ class Data:
 
 #Commands
 @bot.command()
-async def beg(message):
-    member_data = load_member_data(message.author.id)
+@commands.cooldown(1, 2, commands.BucketType.default)
+async def beg(ctx):
+    member_data = load_member_data(ctx.message.author.id)
     gain_amt = random.randint(0,201)
     member_data.wallet += gain_amt
-    await message.channel.send(f"You earned {gain_amt} coins!")
+    em = discord.Embed(title = 'Beg', description = f'You earned {gain_amt} coins!, You can use this command again in 2 seconds.')
+    await ctx.send(embed=em)
 
-    save_member_data(message.author.id
-, member_data)
+    save_member_data(ctx.message.author.id, member_data)
 
 @bot.command()
 async def bal(message):
@@ -223,7 +225,6 @@ async def deposit(ctx, deposit_amt):
     member_data = load_member_data(ctx.message.author.id)
 
     deposit_amt = int(deposit_amt)
-    print(deposit_amt)
 
     if deposit_amt == None:
         em = discord.Embed(title="Error!", description = "Please provide an amount to deposit!")
@@ -231,9 +232,11 @@ async def deposit(ctx, deposit_amt):
 
     elif deposit_amt <0:
         em = discord.Embed(title="Error!", description = "Please provide a positive amount to deposit!")
+        await ctx.send(embed = em)
 
     elif deposit_amt > member_data.wallet:
         em = discord.Embed(title="Error!", description = "The value you are depositing is more than what you have in your wallet!")
+        await ctx.send(embed = em)
 
     else:
         member_data.bank += deposit_amt
@@ -241,10 +244,71 @@ async def deposit(ctx, deposit_amt):
         save_member_data(ctx.message.author.id, member_data)
         await ctx.send(f"Deposited {deposit_amt} coins!")
 
+@bot.command()
+async def withdraw(ctx, withdraw_amt):
+    member_data = load_member_data(ctx.message.author.id)
+
+    withdraw_amt = int(withdraw_amt)
 
 
+    if withdraw_amt == None:
+        em = discord.Embed(title="Error!", description = "Please provide an amount to withdraw!")
+        await ctx.send(embed = em)
+
+    elif withdraw_amt <0:
+        em = discord.Embed(title="Error!", description = "Please provide a positive amount to withdraw!")
+        await ctx.send(embed = em)
+
+    elif withdraw_amt > member_data.bank:
+        em = discord.Embed(title="Error!", description = "The value you are withdrawing is more than what you have in your bank!")
+        await ctx.send(embed = em)
+
+    else:
+        member_data.bank -= withdraw_amt
+        member_data.wallet += withdraw_amt
+        save_member_data(ctx.message.author.id, member_data)
+        await ctx.send(f"Withdrew {withdraw_amt} coins!")
 
 
+@bot.command()
+async def gamble(ctx, gamble_amt):
+
+    member_data = load_member_data(ctx.message.author.id)
+
+    gamble_amt = int(gamble_amt)
+
+    if gamble_amt == None or gamble_amt < 0:
+        em = discord.Embed(title="Error!", description = "Please provide a valid amount to gamble!")
+        await ctx.send(embed = em)
+
+    elif gamble_amt < 100:
+        em = discord.Embed(title="Error!", description = "Please gamble at least 100 coins!")
+        await ctx.send(embed = em)
+
+    elif gamble_amt > member_data.wallet:
+        em = discord.Embed(title="Error!", description = "The value you are gambling is more than what you have in your wallet!")
+        await ctx.send(embed = em)
+
+    else:
+        userchance = random.randint(0,7)
+        botchance = random.randint(0,7)
+
+        if userchance > botchance:
+            credit_gain = userchance*(userchance-botchance)
+            member_data.wallet += credit_gain
+            save_member_data(ctx.message.author.id, member_data)
+            em = discord.Embed(title="You Won!", description = f"You gained {credit_gain} credits! ")
+            await ctx.send(embed = em)
+
+        elif botchance > userchance:
+            member_data.wallet -= gain_amt
+            save_member_data(ctx.message.author.id, member_data)
+            em = discord.Embed(title="You Lost :(", description = f"You lost {gamble_amt} credits. ")
+            await ctx.send(embed = em)
+
+        else:
+            em = discord.Embed(title="Tie!", description = f"You didn't gain or lose anything. ")
+            await ctx.send(embed = em)
 
 
 #Functions
@@ -382,7 +446,7 @@ async def hack(ctx, member: discord.Member):
     await asyncio.sleep(random.choice(waittime))
     await msg.edit(content="STEALING AND REPOSTING MEMES NOW...")
     await asyncio.sleep(random.choice(waittime))
-    await ctx.send("SUCCESSFULLY HACKED!")
+    await ctx.send(f"Successfully hacked {member.mention}!")
 
 @bot.command()
 async def coinflip(ctx):
