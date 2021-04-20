@@ -213,12 +213,13 @@ async def beg(ctx):
     save_member_data(ctx.message.author.id, member_data)
 
 @bot.command()
-async def bal(message):
-    member_data = load_member_data(message.author.id)
+async def bal(ctx):
+    member_data = load_member_data(ctx.message.author.id)
 
-    em = discord.Embed(title=f"Balance of {message.author}")
+    em = discord.Embed(title=f"Balance of {ctx.message.author}")
     em.add_field(name="Wallet", value=str(member_data.wallet))
     em.add_field(name="Bank", value=str(member_data.bank))
+    await ctx.send(embed = em)
 
 @beg.error
 async def beg_error(ctx, error):
