@@ -82,7 +82,7 @@ async def unban(ctx, *, member: discord.Member):
             await ctx.send(f'Unbanned {member}')
             return
 
-@commands.is_owner() #make sure no one else uses it
+@commands.is_owner() # Makes sure no one else uses it
 @bot.command()
 async def stop_bot(ctx):
     exit()
@@ -100,6 +100,8 @@ async def mute(ctx, member: discord.Member, pass_context=True):
 async def warn(ctx, member: discord.Member, warnmsg):
     user = bot.get_user(member.id)
     await user.send(f"{ctx.message.author} has warned you for {warnmsg}.")
+
+
 ####################################################################################################################
 
 # HELP SECTION/HELP RELATED COMMANDS
@@ -111,7 +113,7 @@ async def help(ctx):
     em.add_field(name='Moderation', value='ban, unban, softban, mute, clear, warn')
     em.add_field(name='Utilities', value='ping, invite, nickname, poll')
     em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse, fortune, guess')
-    em.add_field(name='Currency', value='beg, bal, deposit, withdraw, gamble')
+    em.add_field(name='Currency', value='beg, bal, deposit, withdraw, gamble, guess')
 
     await ctx.send(embed=em)
 '''
@@ -200,7 +202,7 @@ class Data:
 
 #Commands
 @bot.command()
-@commands.cooldown(1, 2, commands.BucketType.default)
+@commands.cooldown(1, 2, commands.BucketType.user)
 async def beg(ctx):
     member_data = load_member_data(ctx.message.author.id)
     gain_amt = random.randint(0,201)
@@ -217,6 +219,12 @@ async def bal(message):
     em = discord.Embed(title=f"Balance of {message.author}")
     em.add_field(name="Wallet", value=str(member_data.wallet))
     em.add_field(name="Bank", value=str(member_data.bank))
+
+@beg.error
+async def beg_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        em = discord.Embed(title=f"Hey, I need a break too!",description=f"Try again in {error.retry_after:.2f} sseconds.")
+        await ctx.send(embed=em)
 
     await message.channel.send(embed=em)
 
@@ -300,7 +308,7 @@ async def gamble(ctx, gamble_amt):
             await ctx.send(embed = em)
 
         elif botchance > userchance:
-            member_data.wallet -= gain_amt
+            member_data.wallet -= gamble_amt
             save_member_data(ctx.message.author.id, member_data)
             em = discord.Embed(title="You Lost :(", description = f"You lost {gamble_amt} credits. ")
             await ctx.send(embed = em)
@@ -311,18 +319,42 @@ async def gamble(ctx, gamble_amt):
 
 
 @bot.command()
-async def guess(self, ctx):
+@commands.cooldown(1, 20, commands.BucketType.user)
+async def guess(ctx):
     member_data = load_member_data(ctx.message.author.id)
 
-    number = random.randint(0,11)
+    number = random.randint(1,10)
+    print(number)
+    number = str(number)
     await ctx.send("I have chosen a number from 1-10! Try to guess my number. You have three guesses!")
-    guess = await self.bot.wait_for('message')
+    guess = await bot.wait_for('message')
     guess = guess.content
+
 
     if guess == number:
         member_data.wallet += 50
         save_member_data(ctx.message.author.id, member_data)
         await ctx.send("You got it! You have recieved 50 credits!")
+
+    elif guess != number:
+        em = discord.Embed(title="That wasn't it!", description = "Try again in 20 seconds")
+        await ctx.send(embed = em)
+
+@guess.error
+async def guess_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        em = discord.Embed(title=f"Hey, I need a break too!",description=f"Try again in {error.retry_after:.2f} sseconds.")
+        await ctx.send(embed=em)
+
+@commands.is_owner()
+@bot.command()
+async def gimmemoney(ctx, give_amt):
+    if ctx.message.author.id == 725412711495762001:
+        member_data = load_member_data(ctx.message.author.id)
+        member_data.wallet += int(give_amt)
+        save_member_data(ctx.message.author.id, member_data)
+        await ctx.send(f"Gave {give_amt} :hearts:")
+
 
 #Functions
 def load_data():
