@@ -3,9 +3,11 @@ import time
 import asyncio
 import discord
 from discord.ext import commands
+from discord import Colour
 import os
 import json
 import pickle
+import requests
 # Set-up and running process
 from discord.ext.commands import bot, check, context
 
@@ -117,7 +119,7 @@ async def help(ctx):
     em = discord.Embed(title='Help', description='A list of commands!')
     em.add_field(name='Moderation', value='ban, unban, softban, mute, clear, warn')
     em.add_field(name='Utilities', value='ping, invite, nickname, poll')
-    em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse, fortune, guess')
+    em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse, fortune, guess, bitconi')
     em.add_field(name='Currency', value='beg, bal, deposit, withdraw, gamble, guess, daily')
 
     await ctx.send(embed=em)
@@ -213,6 +215,7 @@ async def beg(ctx):
     gain_amt = random.randint(0,201)
     member_data.wallet += gain_amt
     em = discord.Embed(title = 'Beg', description = f'You earned {gain_amt} coins!, You can use this command again in 2 minutes.')
+    em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
     await ctx.send(embed=em)
 
     save_member_data(ctx.message.author.id, member_data)
@@ -222,6 +225,7 @@ async def bal(ctx):
     member_data = load_member_data(ctx.message.author.id)
 
     em = discord.Embed(title=f"Balance of {ctx.message.author}")
+    em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
     em.add_field(name="Wallet", value=str(member_data.wallet))
     em.add_field(name="Bank", value=str(member_data.bank))
     await ctx.send(embed = em)
@@ -230,6 +234,7 @@ async def bal(ctx):
 async def beg_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         em = discord.Embed(title=f"Hey, I need a break too!",description=f"Try again in {error.retry_after:.2f} sseconds.")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed=em)
 
     await message.channel.send(embed=em)
@@ -242,14 +247,24 @@ async def deposit(ctx, deposit_amt):
 
     if deposit_amt == None:
         em = discord.Embed(title="Error!", description = "Please provide an amount to deposit!")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     elif deposit_amt <0:
         em = discord.Embed(title="Error!", description = "Please provide a positive amount to deposit!")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     elif deposit_amt > member_data.wallet:
         em = discord.Embed(title="Error!", description = "The value you are depositing is more than what you have in your wallet!")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
+        await ctx.send(embed = em)
+
+    elif str(withdraw_amt) == "all" or "a":
+        member_data.wallet -= member_data.wallet
+        member_data.bank += member_data.wallet
+        em = discord.Embed(title="Deposited all coins into bank", description = f"{member_data.wallet} coins have been deposited.")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     else:
@@ -267,14 +282,24 @@ async def withdraw(ctx, withdraw_amt):
 
     if withdraw_amt == None:
         em = discord.Embed(title="Error!", description = "Please provide an amount to withdraw!")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     elif withdraw_amt <0:
         em = discord.Embed(title="Error!", description = "Please provide a positive amount to withdraw!")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     elif withdraw_amt > member_data.bank:
         em = discord.Embed(title="Error!", description = "The value you are withdrawing is more than what you have in your bank!")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
+        await ctx.send(embed = em)
+
+    elif str(withdraw_amt) == "all" or "a":
+        member_data.bank -= member_data.bank
+        member_data.wallet += member_data.bank
+        em = discord.Embed(title="Withdrew all coins from bank!", description = f"{member_data.bank} coins have been withdrawn.")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     else:
@@ -293,14 +318,17 @@ async def gamble(ctx, gamble_amt):
 
     if gamble_amt == None or gamble_amt < 0:
         em = discord.Embed(title="Error!", description = "Please provide a valid amount to gamble!")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     elif gamble_amt < 100:
         em = discord.Embed(title="Error!", description = "Please gamble at least 100 coins!")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     elif gamble_amt > member_data.wallet:
         em = discord.Embed(title="Error!", description = "The value you are gambling is more than what you have in your wallet!")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     else:
@@ -311,16 +339,19 @@ async def gamble(ctx, gamble_amt):
             member_data.wallet += gamble_amt
             save_member_data(ctx.message.author.id, member_data)
             em = discord.Embed(title="You Won!", description = f"You gained {gamble_amt} credits! ")
+            em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
             await ctx.send(embed = em)
 
         elif botchance > userchance:
             member_data.wallet -= gamble_amt
             save_member_data(ctx.message.author.id, member_data)
             em = discord.Embed(title="You Lost :(", description = f"You lost {gamble_amt} credits. ")
+            em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
             await ctx.send(embed = em)
 
         else:
             em = discord.Embed(title="Tie!", description = f"You didn't gain or lose anything. ")
+            em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
             await ctx.send(embed = em)
 
 @bot.command()
@@ -330,6 +361,7 @@ async def daily(ctx):
     member_data.wallet += 1000
     save_member_data(ctx.message.author.id, member_data)
     em = discord.Embed(title = "Daily Claimed!", description = "You got your daily amount of 1000 coins!")
+    em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
     await ctx.send(embed=em)
 
 
@@ -337,7 +369,8 @@ async def daily(ctx):
 @daily.error
 async def daily_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
-        em = discord.Embed(title=f"Daily Already Claimed",description=f"You can try again after {:.1f} hours.")
+        em = discord.Embed(title=f"Daily already claimed!",description=f"Try again in {error.retry_after:.2f} seconds.")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed=em)
 
 @bot.command()
@@ -357,16 +390,19 @@ async def guess(ctx):
         member_data.wallet += 50
         save_member_data(ctx.message.author.id, member_data)
         em = discord.Embed(title="You got it!", description = "You got 50 coins.")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
     elif guess != number:
         em = discord.Embed(title="That wasn't it!", description = "Try again in 20 seconds")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed = em)
 
 @guess.error
 async def guess_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         em = discord.Embed(title=f"Hey, I need a break too!",description=f"Try again in {error.retry_after:.2f} sseconds.")
+        em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         await ctx.send(embed=em)
 
 @commands.is_owner()
@@ -379,7 +415,7 @@ async def gimmemoney(ctx, give_amt):
         await ctx.send(f"Gave {give_amt} :hearts:")
 
 
-#Functions
+#Functions for credits
 def load_data():
     if os.path.isfile(data_filename):
         with open(data_filename, "rb") as file:
@@ -400,8 +436,10 @@ def save_member_data(member_ID, member_data):
 
     data[member_ID] = member_data
 
+
     with open(data_filename, "wb") as file:
         pickle.dump(data, file)
+
 
 ####################################################################################################################
 
@@ -410,6 +448,19 @@ def save_member_data(member_ID, member_data):
 async def ping(ctx):
     await ctx.send(f'Pong!\nLatency: `{round(bot.latency * 1000)} ms`')
 
+@bot.command()
+async def bitcoin(ctx):
+    response = requests.get("https://api.coindesk.com/v1/bpi/currentprice.json")
+    bitContent = response.json()
+
+    chartName = bitContent['chartName']
+    symbol = bitContent['bpi']['USD']
+    rate = bitContent['bpi']['USD']['rate']
+
+    em = discord.Embed(title=f'{chartName}', description = f'Current Value: {rate}')
+    em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
+    em.add_field(name="______", value="[Powered by CoinDesk.](https://www.coindesk.com/price/bitcoin)")
+    await ctx.send(embed = em)
 
 @bot.command()
 async def invite(ctx):
@@ -418,9 +469,9 @@ async def invite(ctx):
         '&scope=bot')
 
 @bot.command()
-async def softban(ctx, member: discord.Member, duration: int):
+async def softban(ctx, member: discord.Member):
     await ctx.guild.ban(member)
-    await time.sleep(duration)
+    await time.sleep(1)
     await ctx.guild.unban(member)
 
 @bot.command(pass_context=True)
