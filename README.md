@@ -1,7 +1,9 @@
 # Manager-Bot
-Manager Bot is a Discord bot that comes with a variety of functions currently being built. It will include games, moderation commands, fun commands like memes, and much more. It is also completely free and open-source!
+Manager Bot is a Discord bot that comes with a variety of functions currently being built. It includes games, a currency system, moderation, fun commands, and more! It is also completely free and open-source.
 
 The Manager Bot project has been resumed! @cryptopig is currently actively working on the bot and adding new commands. Check the GitHub for the most recent updates!
+
+Note: Please do not use the source code of this bot without crediting the author, cryptopig. Read the license for more details.
 
 **How to add the bot to your server:**
 
@@ -18,3 +20,5 @@ The prefix for commands is "."
 An example command is:
 .ping
 Type .help for a list of all the commands. Lastly, enjoy Manager Bot!
+
+
