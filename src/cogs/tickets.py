@@ -25,13 +25,13 @@ class Ticket(commands.Cog):
             # Update existing ticket
             if new_ticket in ticket_data:
                 ticket_data[new_ticket] += [channel_id]
-                with open('.\\databases\\ticket.json', 'w') as update_ticket_data:
+                with open('.\\ticketmanagement\\ticket.json', 'w') as update_ticket_data:
                     json.dump(ticket_data, update_ticket_data, indent=4)
 
             # Add new ticket
             else:
                 ticket_data[new_ticket] = [channel_id]
-                with open('.\\databases\\ticket.json', 'w') as new_ticket_data:
+                with open('.\\ticketmanagement\\ticket.json', 'w') as new_ticket_data:
                     json.dump(ticket_data, new_ticket_data, indent=4)
 
         # Create new embed with reaction
@@ -58,7 +58,7 @@ class Ticket(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         if payload.member.id != self.bot.user.id:
-            with open('.\\databases\\ticket.json', 'r') as file:
+            with open('.\\ticketmanagement\\ticket.json', 'r') as file:
                 ticket_data = json.load(file)
 
             channel_id = list(ticket_data.values())
