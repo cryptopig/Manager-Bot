@@ -26,10 +26,11 @@ async def on_ready():
 @bot.group(invoke_without_command=True)
 async def help(ctx):
     em = discord.Embed(title='Help', description='A list of commands!')
-    em.add_field(name='Moderation', value='ban, unban, softban, mute, clear, warn')
-    em.add_field(name='Utilities', value='ping, invite, nickname, poll')
-    em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse, fortune, guess, bitconi')
-    em.add_field(name='Currency', value='beg, bal, deposit, withdraw, gamble, guess, daily, shop, buy')
+    em.add_field(name='Moderation', value='ban, unban, softban, mute, clear, warn, createticket')
+    em.add_field(name='Utilities', value='ping, invite, nickname, poll', inline=True)
+    em.add_field(name='Fun', value='mentionmember, kill, diceroll, reverse, fortune, guess', inline=True)
+    em.add_field(name='Currency', value='beg, bal, deposit, withdraw, gamble, guess, daily, shop, buy', inline=True)
+    em.add_field(name='Misc', value='featuredservers,  bitcoin, github', inline=True)
 
     await ctx.send(embed=em)
 # End of set-up
@@ -150,7 +151,7 @@ async def beg(ctx):
 
     save_member_data(ctx.message.author.id, member_data)
 
-@bot.command()
+@bot.command(aliases = ['balance'])
 async def bal(ctx):
     member_data = load_member_data(ctx.message.author.id)
 
@@ -210,7 +211,7 @@ async def deposit(ctx, deposit_amt):
         save_member_data(ctx.message.author.id, member_data)
         await ctx.send(f"Deposited {deposit_amt} credits!")
 
-@bot.command()
+@bot.command(aliases = ['with'])
 async def withdraw(ctx, withdraw_amt):
     member_data = load_member_data(ctx.message.author.id)
 
@@ -363,11 +364,12 @@ async def shop(ctx):
     for item in shoplist:
         item_name = item["name"]
         price = item["price"]
+        shopem.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         shopem.add_field(name = item_name, value = f"{price} 💵")
 
     await ctx.send(embed = shopem)
 
-'''
+
 
 @bot.command()
 async def buy(ctx, number=1, choice=None):
@@ -376,9 +378,10 @@ async def buy(ctx, number=1, choice=None):
     for item in shoplist:
         items = []
         item_name = item["name"]
-        price = item["name": choice]["price"]*number
-        print(price)
         items.append(item_name)
+
+    price = choice["price"]*number
+    print(price)
 
     if choice not in items:
         await ctx.send("That is not a valid item!")
@@ -387,7 +390,7 @@ async def buy(ctx, number=1, choice=None):
         await ctx.send("Please specify an item!")
 
     elif member_data.wallet < price:
-        await ctx.send("You do not have enough money to buy that item!")
+        await ctx.send("You do not have enough money!")
 
     else:
         member_data.wallet -= price
@@ -410,7 +413,7 @@ async def inventory(ctx, member: discord.Member=None):
         em.add_field(item)
     await ctx.send(embed = em)
 
-'''
+
 
 @shop.error
 async def shop_error(ctx, error):
@@ -511,6 +514,16 @@ async def nickname(ctx, member: discord.Member, nick):
     else:
         await ctx.send("You don't have the permission to do this!")
 
+@bot.command()
+async def serverinfo(ctx):
+    em = discord.Embed(title=f"Server Information for {ctx.message.guild.name}")
+    em.add_field(name="Owner", value=f"{ctx.guild.owner}")
+    em.add_field(name="Member Count", value=f"{ctx.guild.member_count}\n")
+    em.add_field(name="Text Channels", value=f"{len(ctx.guild.text_channels)}")
+    em.add_field(name="Voice Channels", value=f"{len(ctx.guild.voice_channels)}", inline=True)
+    em.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
+    await ctx.send(embed=em)
+
 
 @bot.command(pass_context=True)
 async def blacklist(ctx, member: discord.Member, *, reason=""):
@@ -530,6 +543,12 @@ async def kill(ctx, member: discord.Member):
     kweapon=['sword', 'bomb', 'plane', 'bowl of milk', 'bread', 'baguette', 'car', 'nuke', 'pig', 'monkey', 'rocket launcher']
     await ctx.send(f"{member.mention} was {random.choice(kmethod)} by a {random.choice(kweapon)} sent by {ctx.message.author.mention}")
 
+@bot.command()
+async def featuredservers(ctx):
+    em = discord.Embed(title='Featured Servers')
+    em.add_field(name ='Chatlab', value = 'Join with [this link](https://discord.gg/B4fqmsb5Gm)')
+    em.add_field(name ='Minewind Discord', value='Join with [this link](https://discord.gg/minewind)')
+    await ctx.send(embed = em)
 
 @bot.command()
 async def poll(ctx, question, option1=None, option2=None):
@@ -550,8 +569,8 @@ async def diceroll(ctx):
     faces = ['1', '2', '3', '4', '5', '6']
     await ctx.send(random.choice(faces))
 
-@bot.command()
-async def mentionmember(ctx, member: discord.Member, aliases=['mm', 'mention']):
+@bot.command(aliases=['mm', 'mention'])
+async def mentionmember(ctx, member: discord.Member):
     await ctx.send(f"That member's name is {member.mention}")
     if member == None:
         await ctx.send("Please provide someone to mention! ")

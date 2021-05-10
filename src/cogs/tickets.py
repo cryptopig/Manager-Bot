@@ -18,31 +18,38 @@ class Ticket(commands.Cog):
         channel_id = int(format_args[0].strip('<').strip('>').replace('#', ''))
         title = ' '.join(format_args[1:])
 
-        with open('.\\ticketmanagement\\ticket.json', 'r') as file:
+        with open('src\\ticketmanagement\\ticket.json', 'r') as file:
             ticket_data = json.load(file)
             new_ticket = str(guild_id)
 
             # Update existing ticket
             if new_ticket in ticket_data:
                 ticket_data[new_ticket] += [channel_id]
-                with open('.\\ticketmanagement\\ticket.json', 'w') as update_ticket_data:
+                with open('src\\ticketmanagement\\ticket.json', 'w') as update_ticket_data:
                     json.dump(ticket_data, update_ticket_data, indent=4)
 
             # Add new ticket
             else:
                 ticket_data[new_ticket] = [channel_id]
-                with open('.\\ticketmanagement\\ticket.json', 'w') as new_ticket_data:
+                with open('src\\ticketmanagement\\ticket.json', 'w') as new_ticket_data:
                     json.dump(ticket_data, new_ticket_data, indent=4)
 
         # Create new embed with reaction
-        ticket_embed = discord.Embed(colour=randint(0, 0xffffff))
+        ticket_embed = discord.Embed(colour=0)
+        ticket_embed.set_author(name = ctx.message.author.display_name, icon_url = ctx.message.author.avatar_url)
         ticket_embed.set_thumbnail(
             url=f'https://cdn.discordapp.com/icons/{guild_id}/{ctx.message.guild.icon}.png')
-
-        ticket_embed.add_field(name=f'Welcome To {ctx.message.guild} Server', value=f'{title}')
         send_ticket_embed = await self.bot.get_channel(channel_id).send(embed=ticket_embed)
 
+
+
         await send_ticket_embed.add_reaction(u'\U0001F3AB')
+
+    @createticket.error
+    async def createticket_error(ctx, error):
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            em = discord.Embed(title = "Please use correct formatting!", description = "The format to create a ticket is .createticket <#channelname> <content>")
+            await ctx.send(embed = em)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -58,7 +65,7 @@ class Ticket(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         if payload.member.id != self.bot.user.id:
-            with open('.\\ticketmanagement\\ticket.json', 'r') as file:
+            with open('src\\ticketmanagement\\ticket.json', 'r') as file:
                 ticket_data = json.load(file)
 
             channel_id = list(ticket_data.values())
@@ -80,6 +87,8 @@ class Ticket(commands.Cog):
                         await payload.member.add_roles(new_user_role, reason=None, atomic=True)
 
                         # Overwrite role permissions
+                        if 'Admin' not in guild.roles:
+                            await guild.create_role(name="Admin")
                         admin_role = discord.utils.get(find_guild.roles, name='Admin')
 
                         overwrites = {
@@ -93,7 +102,7 @@ class Ticket(commands.Cog):
                             u'\U0001F4CB-{}'.format(new_user_role), overwrites=overwrites)
 
                         await create_channel.send(
-                            f'{new_user_role.mention} Your ticket has been created! Please wait for '
+                            f'{new_user_role.mention} Your ticsket has been created! Please wait for '
                             f'{admin_role.mention} to response.')
 
 
